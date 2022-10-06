@@ -2,7 +2,7 @@ pub use thisvk::UserId;
 use std::env;
 use fast_vk::{Client, Instance};
 use dotenv::dotenv;
-use spy_bot::get_hidden_friends;
+use hidden_friends_collector::get_hidden_friends;
 
 #[tokio::main]
 async fn main() {

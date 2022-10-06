@@ -307,6 +307,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "hidden_friends_collector"
+version = "0.1.0"
+dependencies = [
+ "async-recursion",
+ "dotenv",
+ "fast_vk",
+ "futures",
+ "thiserror",
+ "thisvk",
+ "tokio",
+ "vk_method",
+]
+
+[[package]]
 name = "http"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -759,20 +773,6 @@ checksum = "02e2d2db9033d13a1567121ddd7a095ee144db4e1ca1b1bda3419bc0da294ebd"
 dependencies = [
  "libc",
  "winapi",
-]
-
-[[package]]
-name = "spy_bot"
-version = "0.1.0"
-dependencies = [
- "async-recursion",
- "dotenv",
- "fast_vk",
- "futures",
- "thiserror",
- "thisvk",
- "tokio",
- "vk_method",
 ]
 
 [[package]]
