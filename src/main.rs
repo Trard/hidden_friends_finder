@@ -4,60 +4,61 @@ use fast_vk::{Client, Instance};
 use dotenv::dotenv;
 use futures::future::join_all;
 use thisvk::API;
+use tokio::sync::RwLock;
+use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>>{
     dotenv().unwrap();
 
-    let hunt_id = parse_hunt_id().unwrap_or(551175426);
+    let hunt_id = parse_hunt_id().unwrap();
 
     let instances = Instance::from_tokens(env::var("tokens").unwrap().split(",")).unwrap();
     let client = Client::from_instances(instances);
 
-    let mut hunt_friends: HashSet<UserId> = client.friends_get()
+    let hunt_friends: HashSet<UserId> = client.friends_get()
         .user_id(hunt_id)
         .send().await.unwrap().items
         .into_iter().collect();
 
-    let far_friends = get_friends_of_iter(hunt_friends.clone(), &client).await;
-    
-    let is_friend = far_friends.into_iter().map(|id| {
-        let client = &client;
+    let public_friends = hunt_friends.clone();
 
-        async move {
-            client.friends_get()
-                .user_id(id).send().await.ok()
-                ?.items
-                .binary_search(&hunt_id).ok().and(Some(id))
-        }
-    });
+    let checked_users = Arc::new(RwLock::new(HashSet::new()));
+    checked_users.write().await.insert(hunt_id);
 
-    join_all(is_friend).await.into_iter().for_each(|result| {
-        if let Some(id) = result {
-            hunt_friends.insert(id);
-        }
-    });
+    let result: Vec<_> = public_friends.iter().map(|friend| recursive_find(*friend, hunt_id, &client, Arc::clone(&checked_users))).collect();
 
-    println!("{:?}", hunt_friends);
+    let all_friends: HashSet<UserId> = join_all(result).await.into_iter().filter_map(|maybe_friends| maybe_friends).flatten().collect();
+
+    let hidden_friends = &all_friends - &public_friends;
+
+    println!("Hidden: {:?}", hidden_friends);
+    println!("Checked {} users", checked_users.read().await.len());
 
     Ok(())
 }
 
-async fn get_friends_of_iter(users: impl IntoIterator<Item = UserId>, client: &Client) -> HashSet<UserId> {
-    let futures: Vec<_> = users.into_iter().map(|id| {
-        let client = client;
+#[async_recursion::async_recursion]
+async fn recursive_find(id: UserId, hunt_id: UserId, client: &Client, checked_users: Arc<RwLock<HashSet<u32>>>) -> Option<HashSet<UserId>> {
+    if checked_users.read().await.contains(&id) {
+        return None
+    } else {
+        checked_users.write().await.insert(id);
+    }
 
-        async move {
-            match client.friends_get()
-                .user_id(id)
-                .send().await {
-                    Ok(resp) => resp.items,
-                    Err(_) => Vec::with_capacity(0)
-                }
-        }
-    }).collect();
+    let friends = client.friends_get()
+        .user_id(id).send().await.ok()?.items;
 
-    join_all(futures).await.into_iter().flatten().collect()
+    if let Ok(_) = friends.binary_search(&hunt_id) {
+        let response = join_all(friends.into_iter().map(|id| recursive_find(id, hunt_id, client, Arc::clone(&checked_users)))).await;
+
+        let mut ret: HashSet<UserId> = response.into_iter().filter_map(|maybe_friends| maybe_friends).flatten().collect();
+        ret.insert(id);
+
+        Some(ret)
+    } else {
+        None
+    }
 }
 
 #[derive(thiserror::Error, Debug)]
