@@ -1,5 +1,5 @@
 [package]
-name = "hidden_friends_collector"
+name = "hidden_friends_finder"
 version = "0.1.0"
 edition = "2021"
 
