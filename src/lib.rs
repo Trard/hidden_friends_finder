@@ -17,9 +17,9 @@ pub async fn get_hidden_friends(hunt_id: UserId, client: &Client) -> Result<Hash
     let checked_users = Arc::new(RwLock::new(HashSet::new()));
     checked_users.write().await.insert(hunt_id);
 
-    let result: Vec<_> = public_friends.iter().map(|friend| recursive_find(*friend, hunt_id, &client, Arc::clone(&checked_users))).collect();
+    let result: Vec<_> = public_friends.iter().map(|friend| recursive_find(*friend, hunt_id, client, Arc::clone(&checked_users))).collect();
 
-    let all_friends: HashSet<UserId> = join_all(result).await.into_iter().filter_map(|maybe_friends| maybe_friends).flatten().collect();
+    let all_friends: HashSet<UserId> = join_all(result).await.into_iter().flatten().flatten().collect();
 
     let hidden_friends = &all_friends - &public_friends;
 
@@ -37,10 +37,10 @@ async fn recursive_find(id: UserId, hunt_id: UserId, client: &Client, checked_us
     let friends = client.friends_get()
         .user_id(id).send().await.ok()?.items;
 
-    if let Ok(_) = friends.binary_search(&hunt_id) {
+    if friends.binary_search(&hunt_id).is_ok() {
         let response = join_all(friends.into_iter().map(|id| recursive_find(id, hunt_id, client, Arc::clone(&checked_users)))).await;
 
-        let mut ret: HashSet<UserId> = response.into_iter().filter_map(|maybe_friends| maybe_friends).flatten().collect();
+        let mut ret: HashSet<UserId> = response.into_iter().flatten().flatten().collect();
         ret.insert(id);
 
         Some(ret)
