@@ -6,7 +6,7 @@ use thisvk::API;
 use tokio::sync::RwLock;
 use std::sync::Arc;
 
-pub async fn get_hidden_friends(hunt_id: UserId, client: &Client) -> Result<HashSet<UserId>, Box<dyn std::error::Error>>{
+pub async fn get_hidden_friends(hunt_id: UserId, client: &Client) -> Result<HashSet<UserId>, Box<dyn std::error::Error>> {
     let hunt_friends: HashSet<UserId> = client.friends_get()
         .user_id(hunt_id)
         .send().await.unwrap().items
