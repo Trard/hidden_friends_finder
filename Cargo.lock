@@ -145,9 +145,9 @@ dependencies = [
 
 [[package]]
 name = "fast_vk"
-version = "0.5.5"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "201438b909017c6ee6069ce05e9f6bdb00c7eac658410811654c99760ce925e1"
+checksum = "818b565477098dee0c91ad03833c3c68103886cc666a9a98892a8455cde33fad"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1017,9 +1017,9 @@ dependencies = [
 
 [[package]]
 name = "thisvk"
-version = "0.2.4"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b1cbf721c7de32f0b295dd814803dafadd6053582b0034e958a6588a4ef5aae"
+checksum = "d92e82dfb914373ba15f625cd545cf531c5c7bd47d54d68edcc291f9ca8cdc72"
 dependencies = [
  "async-trait",
  "serde",

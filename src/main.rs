@@ -1,4 +1,4 @@
-pub use thisvk::UserId;
+pub use thisvk::{UserId, API};
 use std::env;
 use fast_vk::{Client, Instance};
 use dotenv::dotenv;
@@ -8,10 +8,22 @@ use hidden_friends_finder::get_hidden_friends;
 async fn main() {
     dotenv().unwrap();
 
-    let hunt_id = parse_hunt_id().unwrap();
+    let instances = Instance::from_tokens_by_prototype(
+        env::var("tokens").unwrap().split(','),
+        Instance::builder().time_between_requests(std::time::Duration::from_millis(400))
+    ).unwrap();
 
-    let instances = Instance::from_tokens(env::var("tokens").unwrap().split(",")).unwrap();
     let client = Client::from_instances(instances);
+    
+    let hunt_id = parse_hunt_id().unwrap();
+    
+    let hunt_id = match hunt_id.parse::<UserId>() {
+        Ok(number) => number,
+        Err(_) => {
+            client.users_get().user_id(hunt_id).send().await.unwrap()[0].id
+        }
+    };
+
 
     let hidden_friends = get_hidden_friends(hunt_id, &client).await;
 
@@ -23,12 +35,9 @@ async fn main() {
 enum Error {
     #[error("Hunt id Is missing")]
     HuntIdIsMissing,
-    #[error("Cannot parse hunt id")]
-    CannotParseHuntId
 }
 
-fn parse_hunt_id() -> Result<u32, Error> {
+fn parse_hunt_id() -> Result<String, Error> {
     env::args()
-        .skip(1).next().ok_or(Error::HuntIdIsMissing)?
-        .parse().map_err(|_|Error::CannotParseHuntId)
+        .nth(1).ok_or(Error::HuntIdIsMissing)
 }
