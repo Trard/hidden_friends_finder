@@ -10,6 +10,7 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 dotenv = "0.15.0"
 fast_vk = { version = "0.5", features = ["thisvk"] }
+reqwest = { version = "0.11", features = ["trust-dns"] }
 vk_method = "0.2.1"
 futures = "0.3.24"
 thisvk = "0.2"

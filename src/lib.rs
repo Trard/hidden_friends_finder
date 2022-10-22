@@ -34,8 +34,24 @@ async fn recursive_find(id: UserId, hunt_id: UserId, client: &Client, checked_us
         checked_users.write().await.insert(id);
     }
 
-    let friends = client.friends_get()
-        .user_id(id).send().await.ok()?.items;
+    let friends = match client.friends_get()
+        .user_id(id).send().await {
+            Ok(resp) => { resp.items },
+            Err(error) => {
+                match error {
+                    fast_vk::Error::VK { .. } => { return None },
+                    fast_vk::Error::Arc(error) => match error.as_ref() {
+                        fast_vk::Error::VK { .. } => return None,
+                        another => {
+                            panic!("{}", another);
+                        }
+                    },
+                    another => {
+                        panic!("{}", another);
+                    }
+                }
+            }
+        };
 
     if friends.binary_search(&hunt_id).is_ok() {
         let response = join_all(friends.into_iter().map(|id| recursive_find(id, hunt_id, client, Arc::clone(&checked_users)))).await;
