@@ -2,7 +2,8 @@ pub use thisvk::{UserId, API};
 use std::env;
 use fast_vk::{Client, Instance};
 use dotenv::dotenv;
-use hidden_friends_finder::get_hidden_friends;
+use spybot::get_hidden_friends;
+use spybot::get_average_friends_age;
 
 #[tokio::main]
 async fn main() {
@@ -24,10 +25,10 @@ async fn main() {
         }
     };
 
+    let average_age = get_average_friends_age(hunt_id, &client).await;
+    //let hidden_friends = get_hidden_friends(hunt_id, &client).await;
 
-    let hidden_friends = get_hidden_friends(hunt_id, &client).await;
-
-    println!("{:?}", hidden_friends)
+    println!("{:?}", average_age)
 }
 
 

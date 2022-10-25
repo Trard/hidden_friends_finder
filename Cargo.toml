@@ -1,5 +1,5 @@
 [package]
-name = "hidden_friends_finder"
+name = "spybot"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+chrono = "0.4"
 
 dotenv = "0.15.0"
 fast_vk = { version = "0.6", features = ["thisvk"] }
