@@ -25,15 +25,17 @@ async fn main() -> anyhow::Result<()>{
     
     let average_age = get_average_friends_age(hunt_id, &client).await?;
     let median_age = get_median_friends_age(hunt_id, &client).await?;
+    let hidden_friends = get_hidden_friends(hunt_id, &client).await?;
 
     pretty_print_median_age(&median_age);
     println!("Average: {}", average_age);
+    println!("Hidden: {:?}", hidden_friends);
 
     Ok(())
 }
 
 fn pretty_print_median_age(median_age: &HashMap<UserId, u16>) {
-    let mut median_age = Vec::from_iter(median_age.iter());
+    let mut median_age: Vec<(&UserId, &u16)> = median_age.iter().collect();
 
     median_age.sort_by(|(a_year, a_times), (b_year, b_times)| {
         match b_times.cmp(a_times) {
@@ -45,13 +47,13 @@ fn pretty_print_median_age(median_age: &HashMap<UserId, u16>) {
     });
     
     for (year, times) in median_age {
-        println!("[{}] {}", "#".repeat(*times as usize), year)
+        println!("[{}] {year}", "#".repeat(*times as usize));
     }
 }
 
 #[derive(thiserror::Error, Debug)]
 enum Error {
-    #[error("Hunt id Is missing")]
+    #[error("Hunt id is missing")]
     HuntIdIsMissing,
 }
 

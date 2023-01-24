@@ -10,8 +10,7 @@ pub async fn get_average_friends_age(hunt_id: UserId, client: &Client) -> Result
         .user_ids(friends)
         .fields(vec![UsersFields::bdate])
         .send()
-        .await
-        .unwrap()
+        .await?
         .iter()
         .fold((0, 0), |(mut age_sum, mut friends_count), user| {
             if let Some(bdate) = user.bdate {

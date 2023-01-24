@@ -5,8 +5,9 @@ use futures::future::join_all;
 use thisvk::API;
 use tokio::sync::RwLock;
 use std::sync::Arc;
+use anyhow::Result;
 
-pub async fn get_hidden_friends(hunt_id: UserId, client: &Client) -> Result<HashSet<UserId>, Box<dyn std::error::Error>> {
+pub async fn get_hidden_friends(hunt_id: UserId, client: &Client) -> Result<HashSet<UserId>> {
     let hunt_friends: HashSet<UserId> = client.friends_get()
         .user_id(hunt_id)
         .send().await.unwrap().items
