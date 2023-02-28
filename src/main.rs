@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use fast_vk::{Client, Instance};
+use vk_executive::{Client, Config};
 use spybot::{get_average_friends_age, get_hidden_friends, get_median_friends_age};
 use std::{env, collections::HashMap};
 pub use thisvk::{UserId, API};
@@ -9,12 +9,12 @@ use std::cmp::Ordering;
 async fn main() -> anyhow::Result<()>{
     dotenv().unwrap();
 
-    let instances = Instance::from_tokens_by_prototype(
+    let configs = Config::from_tokens_by_prototype(
         env::var("tokens")?.split(','),
-        Instance::builder().time_between_requests(std::time::Duration::from_millis(400)),
+        &Config::builder().time_between_requests(std::time::Duration::from_millis(400)),
     )?;
 
-    let client = Client::from_instances(instances);
+    let client = Client::from_configs(configs.into_iter());
 
     let hunt_id = parse_hunt_id()?;
 

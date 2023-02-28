@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use chrono::Datelike;
-use fast_vk::{Client, Result};
+use vk_executive::{Client, Result};
 use thisvk::{UserId, UsersFields, API, User};
 
 pub async fn get_median_friends_age(hunt_id: UserId, client: &Client) -> Result<HashMap<UserId, u16>> {

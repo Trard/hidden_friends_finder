@@ -1,5 +1,5 @@
 use chrono::{naive::NaiveDateTime, Datelike};
-use fast_vk::{Client, Result};
+use vk_executive::{Client, Result};
 use thisvk::{UserId, UsersFields, API};
 
 pub async fn get_average_friends_age(hunt_id: UserId, client: &Client) -> Result<NaiveDateTime> {
